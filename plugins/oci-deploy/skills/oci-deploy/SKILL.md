@@ -34,7 +34,7 @@ Ask these questions ONE AT A TIME to configure the infrastructure:
 3. **For each instance** — name, extra packages needed, extra cloud-init commands, app port if not 8080, block volume size (or 0)
 4. **Databases** — 0, 1, or 2 ATP instances. For each: a key name and display name.
 5. **Cloudflare** — yes/no. If yes: domain name, which DNS records (root + subdomains), which instances go behind the LB.
-6. **Backup bucket** — name or skip
+6. **Object storage bucket** — name or skip
 7. **Additional providers** — Auth0, GitHub secrets sync, or other project-specific terraform? Note these are NOT part of the module — they go in separate .tf files alongside the module call.
 
 After gathering answers, generate these files in a `terraform/` directory (or user's preferred path):
