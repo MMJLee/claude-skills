@@ -25,7 +25,7 @@ variable "SSH_PUBLIC_KEY_PATH" {
 
 variable "SSH_PRIVATE_KEY_PATH" {
   type        = string
-  description = "Path to SSH private key file (used by github.tf for CI/CD secret sync)"
+  description = "Path to SSH private key file (passed to module's github sync as ssh_private_key when enable_github = true)"
 }
 
 locals {

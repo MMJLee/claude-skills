@@ -11,7 +11,7 @@ Scaffold, configure, and deploy OCI Always Free tier infrastructure using the `t
 
 Source: `github.com/MMJLee/terraform-oci-free-tier`
 
-The module creates: VCN + subnets, 1+ ARM A1.Flex instances, 0-2 ATP databases, OCI Vault + KMS, optional Cloudflare LB/SSL, backup bucket, and free tier quotas.
+The module creates: VCN + subnets, 1+ ARM A1.Flex instances, 0-2 ATP databases, OCI Vault + KMS, optional Object Storage bucket, and free tier quotas. It also has opt-in toggles for `enable_cloudflare` (LB + DNS + origin SSL), `enable_auth0` (SPA + M2M clients, API resource server, admin/user roles, post-login JWT action), and `enable_github` (Actions secret sync covering OCI auth, SSH keys, Cloudflare/Auth0 creds, and infrastructure outputs).
 
 ### Instance config options
 
@@ -35,8 +35,16 @@ Ask these questions ONE AT A TIME to configure the infrastructure:
 4. **Databases** — 0, 1, or 2 ATP instances. For each: a key name and display name.
 5. **Cloudflare** — yes/no. If yes: domain name, which DNS records (root + subdomains), which instances go behind the LB.
 6. **Object storage bucket** — name or skip
-7. **Auth0** — yes/no. If yes: API audience (e.g., `https://api.example.com`), JWT custom-claim namespace (must match what the backend reads), allowed callback URLs.
-8. **GitHub Actions secret sync** — yes/no. If yes: GitHub owner + repo. The module auto-syncs OCI auth, SSH keys, Cloudflare/Auth0 creds, and infrastructure outputs (per-instance `<NAME>_IP`, per-database `<KEY>_DB_OCID`, vault, OS namespace). Caller can pass a `github_secrets = {...}` map for project-specific extras.
+7. **Auth0** — yes/no. If yes:
+   - API audience (e.g., `https://api.example.com`) — used as the JWT `aud` claim
+   - JWT custom-claim namespace (e.g., `https://app.example.com`) — must match what the backend reads
+   - Allowed callback URLs (e.g., `["https://app.example.com", "http://localhost:5173"]`)
+   - Auth0 user_id of the initial admin (optional, can be filled in after first login)
+8. **GitHub Actions secret sync** — yes/no. If yes:
+   - GitHub owner + repo
+   - Confirm CI/CD will need a PAT with `repo` scope to be passed as `GITHUB_TOKEN`
+   - Any project-specific secrets to add via `github_secrets = {...}` (e.g., `GOOGLE_CLIENT_ID`, `GH_TOKEN` for `gh` CLI auth in workflows)
+   - The module auto-syncs OCI auth, SSH keys, Cloudflare/Auth0 creds, and infrastructure outputs (per-instance `<NAME>_IP`, per-database `<KEY>_DB_OCID`, vault, OS namespace).
 
 After gathering answers, generate these files in a `terraform/` directory (or user's preferred path). Use the files in `templates/` as a starting point — copy them and substitute the answers from above:
 
@@ -68,8 +76,10 @@ Handle common operations when asked:
 
 - **Add/remove instances** — update the instances map, plan, apply
 - **Add/remove databases** — update the databases map
-- **Enable/disable Cloudflare** — toggle and manage DNS
-- **Destroy** — `terraform destroy` with confirmation
+- **Toggle Cloudflare / Auth0 / GitHub sync** — flip `enable_cloudflare` / `enable_auth0` / `enable_github`. When turning a feature OFF, the matching resources will be destroyed on apply — confirm with the user before proceeding.
+- **Add a GitHub Actions secret** — append to the `github_secrets = {...}` map and apply. The module merges it on top of the auto-derived secrets.
+- **Rotate a credential** — update the relevant variable (e.g., `AUTH0_M2M_CLIENT_SECRET`), apply. The module's `github_actions_secret` will detect drift and update GitHub.
+- **Destroy** — `terraform destroy` with confirmation. Note: this also destroys every secret managed by `github_actions_secret` and every Auth0 client/role — CI/CD won't run again until `terraform apply`.
 - **Import existing resources** — `terraform import` for resources created outside terraform
 - **Show status** — `terraform output`, SSH commands, instance health
 
