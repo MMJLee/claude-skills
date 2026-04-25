@@ -37,14 +37,19 @@ Ask these questions ONE AT A TIME to configure the infrastructure:
 6. **Object storage bucket** — name or skip
 7. **Additional providers** — Auth0, GitHub secrets sync, or other project-specific terraform? Note these are NOT part of the module — they go in separate .tf files alongside the module call.
 
-After gathering answers, generate these files in a `terraform/` directory (or user's preferred path):
+After gathering answers, generate these files in a `terraform/` directory (or user's preferred path). Use the files in `templates/` as a starting point — copy them and substitute the answers from above:
 
-- `main.tf` — providers + backend + module call
-- `variables.tf` — all required variables
-- `outputs.tf` — re-exports of module outputs plus any project-specific outputs
-- `terraform.tfvars.example` — template with placeholder values
+- `main.tf` — providers + backend + module call (template: `templates/main.tf`)
+- `variables.tf` — all required variables (template: `templates/variables.tf`)
+- `outputs.tf` — re-exports of module outputs plus project-specific outputs (template: `templates/outputs.tf`)
+- `terraform.tfvars.example` — placeholder values (template: `templates/terraform.tfvars.example`)
 
-If the user needs Auth0, GitHub secrets, or other provider-specific terraform, generate those as separate .tf files.
+If the user needs Auth0, GitHub secrets, or other provider-specific terraform, copy the matching template alongside `main.tf`. Both `auth0.tf` and `github.tf` rely on variables already declared in `templates/variables.tf` — when you include them, also uncomment the corresponding `required_providers` and `provider` blocks in `main.tf`:
+
+- `templates/auth0.tf` — SPA + M2M clients, API resource server, admin/user roles, post-login action injecting email/name/roles into JWT, optional admin auto-assignment. Requires `AUTH0_*` variables.
+- `templates/github.tf` — syncs every CI/CD secret (OCI auth, SSH, Cloudflare, Auth0, module outputs like ARM IP / vault OCIDs / DB OCIDs) to GitHub Actions via the `integrations/github` provider. Edit the `github_secrets` map to match what the workflow consumes. Requires `GITHUB_*` variables.
+
+The templates contain `PROJECT_NAME` / `DOMAIN_NAME` placeholders and inline comments calling out what needs editing — substitute project-specific values when copying.
 
 ### Phase 2: Deploy
 
