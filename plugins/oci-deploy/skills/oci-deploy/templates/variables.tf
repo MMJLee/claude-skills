@@ -1,6 +1,7 @@
-# Core variables required by main.tf and the terraform-oci-free-tier module.
-# Auth0 / GitHub / Google blocks are only needed if you include the
-# corresponding templates (auth0.tf, github.tf).
+# Variables declared by the calling project's root config. The module owns
+# the resources — caller just declares these and passes them through. Auth0
+# and GitHub blocks are only needed if the caller flips `enable_auth0` /
+# `enable_github` in main.tf.
 
 # --- OCI Authentication ---
 variable "TENANCY_OCID" { type = string }
@@ -48,7 +49,7 @@ variable "DOMAIN_NAME" {
   description = "Custom domain name (e.g., example.com)"
 }
 
-# --- GitHub (only if using github.tf) ---
+# --- GitHub (only if enable_github = true in main.tf) ---
 variable "GITHUB_OWNER" {
   type        = string
   default     = ""
@@ -68,7 +69,7 @@ variable "GITHUB_REPO" {
   description = "GitHub repository name"
 }
 
-# --- Auth0 (only if using auth0.tf) ---
+# --- Auth0 (only if enable_auth0 = true in main.tf) ---
 variable "AUTH0_DOMAIN" {
   type    = string
   default = ""

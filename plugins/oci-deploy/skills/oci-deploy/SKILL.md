@@ -35,7 +35,8 @@ Ask these questions ONE AT A TIME to configure the infrastructure:
 4. **Databases** — 0, 1, or 2 ATP instances. For each: a key name and display name.
 5. **Cloudflare** — yes/no. If yes: domain name, which DNS records (root + subdomains), which instances go behind the LB.
 6. **Object storage bucket** — name or skip
-7. **Additional providers** — Auth0, GitHub secrets sync, or other project-specific terraform? Note these are NOT part of the module — they go in separate .tf files alongside the module call.
+7. **Auth0** — yes/no. If yes: API audience (e.g., `https://api.example.com`), JWT custom-claim namespace (must match what the backend reads), allowed callback URLs.
+8. **GitHub Actions secret sync** — yes/no. If yes: GitHub owner + repo. The module auto-syncs OCI auth, SSH keys, Cloudflare/Auth0 creds, and infrastructure outputs (per-instance `<NAME>_IP`, per-database `<KEY>_DB_OCID`, vault, OS namespace). Caller can pass a `github_secrets = {...}` map for project-specific extras.
 
 After gathering answers, generate these files in a `terraform/` directory (or user's preferred path). Use the files in `templates/` as a starting point — copy them and substitute the answers from above:
 
@@ -44,12 +45,9 @@ After gathering answers, generate these files in a `terraform/` directory (or us
 - `outputs.tf` — re-exports of module outputs plus project-specific outputs (template: `templates/outputs.tf`)
 - `terraform.tfvars.example` — placeholder values (template: `templates/terraform.tfvars.example`)
 
-If the user needs Auth0, GitHub secrets, or other provider-specific terraform, copy the matching template alongside `main.tf`. Both `auth0.tf` and `github.tf` rely on variables already declared in `templates/variables.tf` — when you include them, also uncomment the corresponding `required_providers` and `provider` blocks in `main.tf`:
+Auth0 and GitHub secret sync live INSIDE the module — toggle with `enable_auth0 = true` / `enable_github = true` in the module call. The template `main.tf` has both blocks pre-written and commented out — uncomment them, plus the matching `required_providers` and `provider` blocks. Variables for both are already declared in `templates/variables.tf`.
 
-- `templates/auth0.tf` — SPA + M2M clients, API resource server, admin/user roles, post-login action injecting email/name/roles into JWT, optional admin auto-assignment. Requires `AUTH0_*` variables.
-- `templates/github.tf` — syncs every CI/CD secret (OCI auth, SSH, Cloudflare, Auth0, module outputs like ARM IP / vault OCIDs / DB OCIDs) to GitHub Actions via the `integrations/github` provider. Edit the `github_secrets` map to match what the workflow consumes. Requires `GITHUB_*` variables.
-
-The templates contain `PROJECT_NAME` / `DOMAIN_NAME` placeholders and inline comments calling out what needs editing — substitute project-specific values when copying.
+The templates contain `PROJECT_NAME` placeholders and inline comments calling out what needs editing — substitute project-specific values when copying.
 
 ### Phase 2: Deploy
 

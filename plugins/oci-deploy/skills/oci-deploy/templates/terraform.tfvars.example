@@ -1,6 +1,6 @@
 # Copy to terraform.tfvars and fill in real values.
 # Only the OCI + Cloudflare blocks are required by the bare module.
-# Auth0 / GitHub / Google blocks are needed only if you include those templates.
+# Auth0 / GitHub blocks are needed only if you flip enable_auth0 / enable_github in main.tf.
 
 # --- OCI Authentication ---
 TENANCY_OCID         = "ocid1.tenancy.oc1..aaaa..."
@@ -17,19 +17,19 @@ CLOUDFLARE_API_TOKEN = "your-cloudflare-api-token"
 CLOUDFLARE_ZONE_ID   = "your-zone-id"
 DOMAIN_NAME          = "yourdomain.com"
 
-# --- GitHub (only if using github.tf) ---
+# --- GitHub (only if enable_github = true in main.tf) ---
 # Personal access token with `repo` scope. Terraform syncs all CI/CD secrets.
 GITHUB_OWNER = "your-github-username"
 GITHUB_REPO  = "your-repo"
 GITHUB_TOKEN = "ghp_xxxxxxxxxxxx"
 
-# --- Auth0 SPA app (only if using auth0.tf) ---
+# --- Auth0 SPA app (only if enable_auth0 = true in main.tf) ---
 # Used by frontend and JWT validation in your API.
 AUTH0_DOMAIN        = "yourtenant.us.auth0.com"
 AUTH0_CLIENT_ID     = "your-spa-client-id"
 AUTH0_CLIENT_SECRET = "your-spa-client-secret"
 
-# --- Auth0 M2M app (only if using auth0.tf) ---
+# --- Auth0 M2M app (only if enable_auth0 = true in main.tf) ---
 # Create in Auth0 Dashboard > Applications > Create > Machine to Machine,
 # authorize for the Auth0 Management API with scopes: read:roles, create:roles,
 # update:roles, read:actions, create:actions, update:actions,
