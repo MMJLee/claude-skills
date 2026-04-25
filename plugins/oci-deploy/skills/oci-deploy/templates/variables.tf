@@ -1,9 +1,13 @@
-# Variables declared by the calling project's root config. The module owns
-# the resources — caller just declares these and passes them through. Auth0
-# and GitHub blocks are only needed if the caller flips `enable_auth0` /
-# `enable_github` in main.tf.
+# Variables declared by the calling project's root config. The core module
+# owns infra resources — caller declares these and passes them through.
+#
+# Skill scaffolding rules:
+#   - Always include the OCI Authentication block + the SSH key paths.
+#   - Only include the Cloudflare / Auth0 / GitHub blocks if the user enabled
+#     the matching addon module in main.tf. Variables for unused addons are
+#     dead weight and clutter terraform.tfvars.
 
-# --- OCI Authentication ---
+# --- OCI Authentication (always) ---
 variable "TENANCY_OCID" { type = string }
 variable "USER_OCID" { type = string }
 variable "FINGERPRINT" { type = string }
@@ -25,7 +29,7 @@ variable "SSH_PUBLIC_KEY_PATH" {
 
 variable "SSH_PRIVATE_KEY_PATH" {
   type        = string
-  description = "Path to SSH private key file (passed to module's github sync as ssh_private_key when enable_github = true)"
+  description = "Path to SSH private key file (passed to github addon as ssh_private_key when used)"
 }
 
 locals {
@@ -34,91 +38,79 @@ locals {
   ssh_private_key = file(var.SSH_PRIVATE_KEY_PATH)
 }
 
-# --- Cloudflare ---
-variable "CLOUDFLARE_API_TOKEN" {
-  type      = string
-  sensitive = true
-}
+# --- Cloudflare addon (only when module "cloudflare" is invoked) ---
+# variable "CLOUDFLARE_API_TOKEN" {
+#   type      = string
+#   sensitive = true
+# }
+#
+# variable "CLOUDFLARE_ZONE_ID" {
+#   type = string
+# }
+#
+# variable "DOMAIN_NAME" {
+#   type        = string
+#   description = "Custom domain name (e.g., example.com)"
+# }
 
-variable "CLOUDFLARE_ZONE_ID" {
-  type = string
-}
+# --- GitHub addon (only when module "github_secrets" is invoked) ---
+# variable "GITHUB_OWNER" {
+#   type        = string
+#   description = "GitHub username or org that owns the repo"
+# }
+#
+# variable "GITHUB_TOKEN" {
+#   type        = string
+#   sensitive   = true
+#   description = "GitHub personal access token with repo scope (for setting Actions secrets)"
+# }
+#
+# variable "GITHUB_REPO" {
+#   type        = string
+#   description = "GitHub repository name"
+# }
 
-variable "DOMAIN_NAME" {
-  type        = string
-  description = "Custom domain name (e.g., example.com)"
-}
-
-# --- GitHub (only if enable_github = true in main.tf) ---
-variable "GITHUB_OWNER" {
-  type        = string
-  default     = ""
-  description = "GitHub username or org that owns the repo"
-}
-
-variable "GITHUB_TOKEN" {
-  type        = string
-  sensitive   = true
-  default     = ""
-  description = "GitHub personal access token with repo scope (for setting Actions secrets)"
-}
-
-variable "GITHUB_REPO" {
-  type        = string
-  default     = ""
-  description = "GitHub repository name"
-}
-
-# --- Auth0 (only if enable_auth0 = true in main.tf) ---
-variable "AUTH0_DOMAIN" {
-  type    = string
-  default = ""
-}
-
-variable "AUTH0_CLIENT_ID" {
-  type      = string
-  sensitive = true
-  default   = ""
-}
-
-variable "AUTH0_CLIENT_SECRET" {
-  type      = string
-  sensitive = true
-  default   = ""
-}
-
-variable "AUTH0_M2M_CLIENT_ID" {
-  type      = string
-  sensitive = true
-  default   = ""
-}
-
-variable "AUTH0_M2M_CLIENT_SECRET" {
-  type      = string
-  sensitive = true
-  default   = ""
-}
-
-variable "AUTH0_API_AUDIENCE" {
-  type        = string
-  default     = ""
-  description = "Auth0 API identifier (e.g., https://api.example.com). Used as audience claim."
-}
-
-variable "AUTH0_JWT_NAMESPACE" {
-  type        = string
-  default     = ""
-  description = "Namespace prefix for custom claims (e.g., https://app.example.com). Must match what your backend reads."
-}
-
-variable "AUTH0_ADMIN_USER_ID" {
-  type        = string
-  default     = ""
-  description = "Auth0 user_id (e.g., auth0|abc123) auto-assigned the admin role. Empty to skip."
-}
-
-variable "AUTH0_CALLBACK_URLS" {
-  type        = list(string)
-  default     = []
-  description = "Allowed callback URLs for the SPA client (e.g., [\"https://app.example.com\", \"http://localhost:5173\"])"
-}
+# --- Auth0 addon (only when module "auth0" is invoked) ---
+# variable "AUTH0_DOMAIN" { type = string }
+#
+# variable "AUTH0_CLIENT_ID" {
+#   type      = string
+#   sensitive = true
+# }
+#
+# variable "AUTH0_CLIENT_SECRET" {
+#   type      = string
+#   sensitive = true
+# }
+#
+# variable "AUTH0_M2M_CLIENT_ID" {
+#   type      = string
+#   sensitive = true
+# }
+#
+# variable "AUTH0_M2M_CLIENT_SECRET" {
+#   type      = string
+#   sensitive = true
+# }
+#
+# variable "AUTH0_API_AUDIENCE" {
+#   type        = string
+#   description = "Auth0 API identifier (e.g., https://api.example.com). Used as audience claim."
+# }
+#
+# variable "AUTH0_JWT_NAMESPACE" {
+#   type        = string
+#   description = "Namespace prefix for custom claims (e.g., https://app.example.com). Must match what your backend reads."
+# }
+#
+# variable "AUTH0_ADMIN_USER_ID" {
+#   type        = string
+#   default     = ""
+#   description = "Auth0 user_id (e.g., auth0|abc123) auto-assigned the admin role. Empty to skip."
+# }
+#
+# variable "AUTH0_CALLBACK_URLS" {
+#   type        = list(string)
+#   default     = []
+#   description = "Allowed callback URLs for the SPA client (e.g., [\"https://app.example.com\", \"http://localhost:5173\"])"
+# }

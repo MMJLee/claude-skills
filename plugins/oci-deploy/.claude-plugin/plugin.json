@@ -1,6 +1,6 @@
 {
   "name": "oci-deploy",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Scaffold and deploy OCI Always Free tier infrastructure using terraform-oci-free-tier module",
   "author": {
     "name": "MMJLee"

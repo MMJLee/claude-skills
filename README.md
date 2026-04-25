@@ -25,17 +25,21 @@ Scaffold and deploy OCI Always Free tier infrastructure using the [terraform-oci
 
 **What it does:**
 
-1. **Scaffold** — asks about your project (instance layout, databases, Cloudflare, etc.) and generates terraform files
+1. **Scaffold** — asks about your project (instance layout, databases, optional Cloudflare/Auth0/GitHub addons) and generates terraform files
 2. **Deploy** — walks through `terraform init` / `plan` / `apply` with confirmation at each step
-3. **Manage** — add/remove instances or databases, enable Cloudflare, import resources, destroy
+3. **Manage** — add/remove instances or databases, add/remove addons (Cloudflare LB, Auth0 stack, GitHub secret sync), import resources, destroy
+
+The terraform module is split into a **core** (always invoked) plus three **addon modules** (`cloudflare`, `auth0`, `github`) that the consumer invokes only when needed. Projects without an addon don't pay any provider tax for it — no stub provider blocks, no transitive plugin init.
 
 **Example:**
 
 ```
 > /oci-deploy
 # Asks: project name, instance layout (1x4CPU or 4x1CPU, etc.),
-# databases (0-2), Cloudflare yes/no, backup bucket
+# databases (0-2), backup bucket, Cloudflare addon (y/n), Auth0 addon (y/n),
+# GitHub secret sync addon (y/n)
 # Then generates main.tf, variables.tf, outputs.tf, terraform.tfvars.example
+# (with only the providers/vars/module blocks for addons you said yes to)
 # and guides you through deployment
 ```
 

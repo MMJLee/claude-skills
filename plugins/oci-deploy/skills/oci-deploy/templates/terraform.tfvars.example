@@ -1,6 +1,10 @@
 # Copy to terraform.tfvars and fill in real values.
-# Only the OCI + Cloudflare blocks are required by the bare module.
-# Auth0 / GitHub blocks are needed only if you flip enable_auth0 / enable_github in main.tf.
+#
+# Skill scaffolding rules:
+#   - Always include the OCI block.
+#   - Only include Cloudflare / GitHub / Auth0 blocks if the matching addon
+#     module is invoked in main.tf. Don't dump unused vars into the user's
+#     tfvars.
 
 # --- OCI Authentication ---
 TENANCY_OCID         = "ocid1.tenancy.oc1..aaaa..."
@@ -12,41 +16,41 @@ OCI_PRIVATE_KEY_PATH = "./oci_private_key.pem"
 SSH_PUBLIC_KEY_PATH  = "./oci_public_key.pub"
 SSH_PRIVATE_KEY_PATH = "./oci_private_key.pem"
 
-# --- Cloudflare ---
-CLOUDFLARE_API_TOKEN = "your-cloudflare-api-token"
-CLOUDFLARE_ZONE_ID   = "your-zone-id"
-DOMAIN_NAME          = "yourdomain.com"
+# --- Cloudflare (only when the cloudflare addon is invoked) ---
+# CLOUDFLARE_API_TOKEN = "your-cloudflare-api-token"
+# CLOUDFLARE_ZONE_ID   = "your-zone-id"
+# DOMAIN_NAME          = "yourdomain.com"
 
-# --- GitHub (only if enable_github = true in main.tf) ---
+# --- GitHub (only when the github addon is invoked) ---
 # Personal access token with `repo` scope. Terraform syncs all CI/CD secrets.
-GITHUB_OWNER = "your-github-username"
-GITHUB_REPO  = "your-repo"
-GITHUB_TOKEN = "ghp_xxxxxxxxxxxx"
+# GITHUB_OWNER = "your-github-username"
+# GITHUB_REPO  = "your-repo"
+# GITHUB_TOKEN = "ghp_xxxxxxxxxxxx"
 
-# --- Auth0 SPA app (only if enable_auth0 = true in main.tf) ---
+# --- Auth0 SPA app (only when the auth0 addon is invoked) ---
 # Used by frontend and JWT validation in your API.
-AUTH0_DOMAIN        = "yourtenant.us.auth0.com"
-AUTH0_CLIENT_ID     = "your-spa-client-id"
-AUTH0_CLIENT_SECRET = "your-spa-client-secret"
+# AUTH0_DOMAIN        = "yourtenant.us.auth0.com"
+# AUTH0_CLIENT_ID     = "your-spa-client-id"
+# AUTH0_CLIENT_SECRET = "your-spa-client-secret"
 
-# --- Auth0 M2M app (only if enable_auth0 = true in main.tf) ---
+# --- Auth0 M2M app (only when the auth0 addon is invoked) ---
 # Create in Auth0 Dashboard > Applications > Create > Machine to Machine,
 # authorize for the Auth0 Management API with scopes: read:roles, create:roles,
 # update:roles, read:actions, create:actions, update:actions,
 # read:resource_servers, create:resource_servers, update:resource_servers,
 # read:role_members, create:role_members
-AUTH0_M2M_CLIENT_ID     = "your-m2m-client-id"
-AUTH0_M2M_CLIENT_SECRET = "your-m2m-client-secret"
+# AUTH0_M2M_CLIENT_ID     = "your-m2m-client-id"
+# AUTH0_M2M_CLIENT_SECRET = "your-m2m-client-secret"
 
 # Auth0 API identifier (audience claim) and JWT custom-claim namespace.
 # JWT namespace must match what your backend reads (e.g., https://app.example.com/roles).
-AUTH0_API_AUDIENCE  = "https://api.yourdomain.com"
-AUTH0_JWT_NAMESPACE = "https://app.yourdomain.com"
+# AUTH0_API_AUDIENCE  = "https://api.yourdomain.com"
+# AUTH0_JWT_NAMESPACE = "https://app.yourdomain.com"
 
 # Allowed callback URLs for the SPA. Include local dev URLs if you log in locally.
-AUTH0_CALLBACK_URLS = ["https://app.yourdomain.com", "http://localhost:5173"]
+# AUTH0_CALLBACK_URLS = ["https://app.yourdomain.com", "http://localhost:5173"]
 
 # Auto-assign admin role to one user. Find user_id at:
 # Auth0 Dashboard > User Management > Users > click user > user_id.
 # Leave empty to skip.
-AUTH0_ADMIN_USER_ID = ""
+# AUTH0_ADMIN_USER_ID = ""
