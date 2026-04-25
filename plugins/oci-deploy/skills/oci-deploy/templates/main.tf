@@ -48,14 +48,19 @@ provider "cloudflare" {
   api_token = var.CLOUDFLARE_API_TOKEN
 }
 
-# Uncomment if enable_auth0 = true
+# Required when enable_auth0 = true. If you leave both this provider block
+# and the auth0 entry in required_providers commented out, terraform won't
+# download the auth0 plugin. Forgetting this block while enable_auth0 = true
+# fails plan with "provider not configured".
 # provider "auth0" {
 #   domain        = var.AUTH0_DOMAIN
 #   client_id     = var.AUTH0_M2M_CLIENT_ID
 #   client_secret = var.AUTH0_M2M_CLIENT_SECRET
 # }
 
-# Uncomment if enable_github = true
+# Required when enable_github = true. Same caveat as auth0 — leaving both
+# blocks commented skips the plugin download; forgetting this while
+# enable_github = true fails plan with "provider not configured".
 # provider "github" {
 #   owner = var.GITHUB_OWNER
 #   token = var.GITHUB_TOKEN
