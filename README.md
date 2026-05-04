@@ -1,15 +1,15 @@
-# claude-skills
+# agent-skills
 
-Personal Claude Code skills marketplace.
+Personal agent skills collection.
 
-## Install
+## Install (Claude)
 
 ```bash
 # Add the marketplace (one-time)
-claude plugin marketplace add MMJLee/claude-skills
+claude plugin marketplace add MMJLee/agent-skills
 
 # Install a skill
-claude plugin install oci-deploy@claude-skills
+claude plugin install oci-deploy@agent-skills
 
 # Reload to activate
 /reload-plugins
